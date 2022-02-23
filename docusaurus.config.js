@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'My Site',
   tagline: 'Dinosaurs are cool',
-  url: 'https://redish101.github.io',
+  url: 'https://redish101.github.io/',
   baseUrl: '/docs-demo/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
