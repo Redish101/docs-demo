@@ -1,61 +1,37 @@
-# 当前 workflow 的名称
-name: Frontend Weekly
+name: Deploy to GitHub Pages
 
-# 指定 workflow 触发的 event
 on:
   push:
-    branches:
-      - main
+    branches: [development]
+    paths: [./**]
 
-# 一个 workflow 由一个或多个 job 组成
 jobs:
-  # job id: 是 job 的唯一标识
-  build_and_deploy:
-
-    name: Build and Deploy
-    # job 运行的环境配置
+  deploy:
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    # 一个 job 由多个 step 组成
     steps:
-      # 当前 step 的名字
-      - name: Checkout
-        # checkout action 主要用于向 github 仓库拉取源代码
-        # https://github.com/actions/checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          ref: main
-      - name: Cache
-        # cache 在这里主要用于缓存 npm，提升构建速率
-        # https://github.com/actions/cache
-        uses: actions/cache@v2
-        # npm 缓存的路径可查看 https://docs.npmjs.com/cli/cache#cache
-        # 由于这里 runs-on 是 ubuntu-latest，因此配置 ~/.npm
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: 
-            ${{ runner.os }}-node-
-      - name: Use Node.js
-      	# 配置 Node 执行环境（当前构建的服务器默认没有 Node 环境，可以通过 Action 安装 Node）
-      	# https://github.com/actions/setup-node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14
-      - name: Build
-      	# 安装 Node 之后就可以执行构建脚本
-        run: 
-          npm install yarn -g
-          yarn
+          node-version: 14.x
+          cache: yarn
+      - name: Build website
+        working-directory: website
+        run: |
+          yarn install --frozen-lockfile
           yarn build
-      - name: Deploy
-      	# 将构建产物 commit 到一个分支上，用于发布静态站点资源
-      	# https://github.com/peaceiris/actions-gh-pages
+
+      # Popular action to deploy to GitHub Pages:
+      # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          # Github 会在 workflow 中自动生成 GIHUBT_TOKEN，用于认证 workflow 的运行
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # 静态资源目录设置
+          # Build output to publish to the `gh-pages` branch:
           publish_dir: ./build
-          # 默认发布到 gh-pages 分支上，可以指定特定的发布分支（不能选拉取代码的分支）
-          publish_branch: gh-pages
-          full_commit_message: ${{ github.event.head_commit.message }}
+          # Assign commit authorship to the official GH-Actions bot for deploys to `gh-pages` branch:
+          # https://github.com/actions/checkout/issues/13#issuecomment-724415212
+          # The GH actions bot is used by default if you didn't specify the two fields.
+          # You can swap them out with your own user credentials.
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
