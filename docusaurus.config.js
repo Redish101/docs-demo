@@ -9,7 +9,7 @@ const config = {
   title: 'My Site',
   tagline: 'Dinosaurs are cool',
   url: 'https://redish101.github.io/',
-  baseUrl: 'docs-demo/',
+  baseUrl: '/docs-demo/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
