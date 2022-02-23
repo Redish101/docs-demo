@@ -1,30 +1,30 @@
 # 当前 workflow 的名称
-name: 部署到Github Pages
+name: Frontend Weekly
 
 # 指定 workflow 触发的 event
 on:
   push:
     branches:
-      - development
+      - main
 
 # 一个 workflow 由一个或多个 job 组成
 jobs:
   # job id: 是 job 的唯一标识
   build_and_deploy:
   	# 在 Github 中显示的 job 名称
-    name: 构建并部署
+    name: Build and Deploy
     # job 运行的环境配置
     runs-on: ubuntu-latest
     # 一个 job 由多个 step 组成
     steps:
       # 当前 step 的名字
-      - name: 从仓库检出
+      - name: Checkout
         # checkout action 主要用于向 github 仓库拉取源代码
         # https://github.com/actions/checkout
         uses: actions/checkout@v2
         with:
           ref: main
-      - name: 缓存
+      - name: Cache
         # cache 在这里主要用于缓存 npm，提升构建速率
         # https://github.com/actions/cache
         uses: actions/cache@v2
@@ -35,19 +35,19 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: 配置Node.js执行环境
+      - name: Use Node.js
       	# 配置 Node 执行环境（当前构建的服务器默认没有 Node 环境，可以通过 Action 安装 Node）
       	# https://github.com/actions/setup-node
         uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: 构建
+      - name: Build
       	# 安装 Node 之后就可以执行构建脚本
         run: |
           npm install yarn -g
           yarn
           yarn build
-      - name: 部署
+      - name: Deploy
       	# 将构建产物 commit 到一个分支上，用于发布静态站点资源
       	# https://github.com/peaceiris/actions-gh-pages
         uses: peaceiris/actions-gh-pages@v3
